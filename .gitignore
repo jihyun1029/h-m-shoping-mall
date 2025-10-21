@@ -6,7 +6,9 @@
 # ✅ Node 공통 (FE & BE)
 node_modules/
 .env
-.env.*       # 예: .env.local, .env.development 등
+.env.*
+.pnp
+.pnp.js
 
 # ✅ 로그
 npm-debug.log*
@@ -16,19 +18,28 @@ yarn-error.log*
 # ✅ 빌드/배포 결과물
 dist/
 build/
+out/
 
 # ✅ React 특화 (CRA / Vite / Next.js 등)
 .next/
-out/
 coverage/
-*.swp
-
-# ✅ 캐시
-.cache/
-.tmp/
-
-# ✅ Storybook (사용하는 경우)
 storybook-static/
 
-# ✅ ESLint / Babel / 기타 임시파일
-*.eslintcache
+# ✅ 캐시 및 임시 파일
+.cache/
+.tmp/
+*.swp
+
+# ✅ 테스트 관련
+/coverage
+
+# ✅ 환경별 설정 파일
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ✅ Misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
