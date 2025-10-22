@@ -13,12 +13,12 @@ const userSchema = Schema(
 );
 
 userSchema.methods.toJSON = function () {
-    const obj = this._doc
-    delete obj.password
-    delete obj.__v
-    delete obj.updatedAt
-    delete obj.createAt
-    return obj
+    const obj = this._doc;
+    delete obj.password;
+    delete obj.__v;
+    delete obj.updatedAt;
+    delete obj.createdAt;
+    return obj;
 }
 userSchema.methods.generateToken = async function() {
     const token = await jwt.sign({_id:this._id}, JWT_SECRET_KEY, {
