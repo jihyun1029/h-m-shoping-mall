@@ -39,6 +39,20 @@ authController.authenticate = async (req, res, next) => {
     } catch(error) {
         res.status(400).json({status:"fail", error:error.message})
     }
+};
+
+authController.checkAdminPermission = async (req, res, next) => {
+    try {
+        // 어떤 유저인지 어디서 알 수 있나? token 값으로 찾을 수 있다.
+        // 그럼 token 값을 가지고 userId를 찾아내는 것을 여기서 또 할 필요 있을까?
+        // 위에서 했기 때문에 다시 가져다 쓰면 됨.
+        const {userId} = req;
+        const user = await User.findById(userId);
+        if(user.level !== "admin") throw new Error("no permission");
+        next();
+    } catch(error) {
+        res.status(400).json({status:"fail", error:error.message});
+    }
 }
 
 module.exports = authController;
