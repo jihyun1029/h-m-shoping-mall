@@ -1,5 +1,7 @@
 const Product = require("../models/Product");
 
+const PAGE_SIZE = 5;
+
 const productController = {}
 
 productController.createProduct = async (req, res) => {
@@ -54,10 +56,31 @@ productController.getProducts = async (req, res) => {
         const cond = name ? { name: { $regex: name, $options: "i" } } : {};
         // query는 컨디션을 추가해주겠다.
         let query = Product.find(cond);
+        // 필요에 의해서 값을 추가하거나 안하거나
+        let response = { status: "success" };
+
+        if(page) {
+            // 10개의 데이터 중 5개씩 보여주고 싶다면?
+            // limit는 5
+            query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
+
+            // 최종 몇개 페이지
+            // 데이터가 총 몇개있는지
+            // const totalItemNum = await Product.find(cond).count(); // 현재 버전(v6 이상) 에서는 .count() 메서드가 제거되었고, 대신 .countDocuments() 또는 .estimatedDocumentCount() 를 사용해야 합니다.
+            const totalItemNum = await Product.countDocuments(cond);
+            // 전체 페이지 개수 = 전체 데이터 개수 / 페이지 사이즈
+            const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
+
+            // 만약에 pgae라는 쿼리가 있고, 페이지네이션이 필요하다면?
+            response.totalPageNum = totalPageNum;
+        }
 
         // 쿼리를 따로 실행할 수 있다. 실행을 시키고 싶을때 선언과 실행을 따로 하고 싶을때
         const productList = await query.exec();
-        res.status(200).json({status:"success", data: productList});
+        response.data = productList;
+        //res.status(200).json({status:"success", data: productList});
+        res.status(200).json(response);
+        // 상황에 따라서 page에 response가 필요하고 안 필요하고에 따라서 동적인 response를 만들 수 있다.
     } catch(error) {
         res.status(400).json({status:"fail", error:error.message});
     }
