@@ -18,4 +18,11 @@ router.put(
     productController.updateProduct
 ); // 아무나 수정할 수 X
 
+router.delete(
+    "/:id",
+    authController.authenticate,
+    authController.checkAdminPermission,
+    productController.deleteProduct
+); // 아무나 삭제할 수 X
+
 module.exports = router;

@@ -53,7 +53,10 @@ productController.getProducts = async (req, res) => {
 
         // 검색 조건이 추가되는 것을 고려해서, 검색 조건을 모아서
         // 검색 조건을 cond에 다 모을 것이다. 만약에 이름이 있다? 검색조건은
-        const cond = name ? { name: { $regex: name, $options: "i" } } : {};
+        const cond = { isDeleted: false }; // 삭제되지 않은 상품만 조회
+        if (name) {
+            cond.name = { $regex: name, $options: "i" };
+        }
         // query는 컨디션을 추가해주겠다.
         let query = Product.find(cond);
         // 필요에 의해서 값을 추가하거나 안하거나
@@ -114,5 +117,25 @@ productController.updateProduct = async (req, res) => {
     }
 }
 
+productController.deleteProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        
+        // 상품이 존재하는지 확인
+        const product = await Product.findById(productId);
+        if(!product) throw new Error("Product not found");
+        
+        // isDeleted를 true로 변경 (실제 삭제가 아닌 소프트 삭제)
+        const deletedProduct = await Product.findByIdAndUpdate(
+            {_id: productId},
+            {isDeleted: true},
+            {new: true}
+        );
+        
+        res.status(200).json({status: "success", message: "Product deleted successfully", data: deletedProduct});
+    } catch(error) {
+        res.status(400).json({status:"fail", error:error.message});
+    }
+}
 
 module.exports = productController;
