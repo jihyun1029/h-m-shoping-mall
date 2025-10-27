@@ -34,13 +34,14 @@ const NewItemDialog = ({ mode, showDialog, setShowDialog }) => {
   console.log("stock", stock);
 
   useEffect(() => {
-    if (success) setShowDialog(false);
-  }, [success]);
-
-  useEffect(() => {
-    if (error || !success) {
+    if (success) {
+      setShowDialog(false);
+      // success 상태를 false로 리셋
       dispatch(clearError());
     }
+  }, [success, dispatch]);
+
+  useEffect(() => {
     if (showDialog) {
       if (mode === "edit") {
         setFormData(selectedProduct);
@@ -62,7 +63,6 @@ const NewItemDialog = ({ mode, showDialog, setShowDialog }) => {
     setFormData({ ...InitialFormData });
     setStock([]);
     setStockError(false);
-    dispatch(clearError());
     // 다이얼로그 닫아주기
     setShowDialog(false);
   };
