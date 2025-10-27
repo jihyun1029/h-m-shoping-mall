@@ -135,4 +135,16 @@ productController.deleteProduct = async (req, res) => {
     }
 };
 
+// 상품 상세 조회
+productController.getProductById = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const product = await Product.findOne({_id: productId, isDeleted: false});
+        if(!product) throw new Error("Product not found");
+        res.status(200).json({status: "success", data: product});
+    } catch(error) {
+        res.status(400).json({status:"fail", error:error.message});
+    }
+};
+
 module.exports = productController;

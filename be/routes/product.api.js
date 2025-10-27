@@ -11,6 +11,7 @@ router.post(
 ); // 상품 관리는 admin만 할 수 있기 때문에 admin인지 아닌지 확인.
 
 router.get("/", productController.getProducts);
+router.get("/:id", productController.getProductById);
 router.put(
     "/:id",
     authController.authenticate,
