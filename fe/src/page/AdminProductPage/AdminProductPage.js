@@ -64,7 +64,11 @@ const AdminProductPage = () => {
 
   const openEditForm = (product) => {
     //edit모드로 설정하고
+    setMode("edit");
     // 아이템 수정다이얼로그 열어주기
+    dispatch(setSelectedProduct(product));
+    // 다이얼로그 열기전에 내가 선택한 아이템을 선택했다 셋팅을 먼저 해줘야 함는. reduex에 저장할 것이다.
+    setShowDialog(true);
   };
 
   const handleClickNewItem = () => {
