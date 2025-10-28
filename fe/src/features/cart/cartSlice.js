@@ -17,14 +17,14 @@ export const addToCart = createAsyncThunk(
   async ({ id, size }, { rejectWithValue, dispatch }) => {
     try {
       const response = await api.post("/cart", { productId: id, size, qty: 1});
-      if(response.status !== 200) throw new Error(response.error);
+      if(response.status !== 200) throw new Error(response.data?.error);
       dispatch(
           showToastMessage({
             message: "카트에 아이템이 추가 됐습니다.",
             status: "success"
           })
       );
-      return response.data
+      return response.data?.cartItemQty;
     } catch(error) {
         dispatch(
             showToastMessage({
@@ -32,7 +32,7 @@ export const addToCart = createAsyncThunk(
                 status: "error"
             })
         );
-        return rejectWithValue(error.error);
+        return rejectWithValue(error.message);
     }
   }
 );
@@ -68,16 +68,17 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
       builder
-          .addCase(addToCart.pending, (status, action) => {
-              status.loading = true;
+          .addCase(addToCart.pending, (state, action) => {
+              state.loading = true;
           })
-          .addCase(addToCart.fulfilled, (status, action) => {
-              status.loading = false;
-              this.error = "";
+          .addCase(addToCart.fulfilled, (state, action) => {
+              state.loading = false;
+              state.error = "";
+              state.cartItemCount = action.payload;
           })
-          .addCase(addToCart.rejected, (status, action) => {
-              status.loading = false;
-              status.error = action.payload;
+          .addCase(addToCart.rejected, (state, action) => {
+              state.loading = false;
+              state.error = action.payload;
           })
   },
 });
