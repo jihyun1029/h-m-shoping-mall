@@ -40,6 +40,28 @@ cartController.addItemToCart = async (req, res) => {
     } catch (error) {
         return res.status(400).json({status:"fail", error: error.message});
     }
+};
+
+cartController.getCart = async (req, res) => {
+    try {
+        const { userId } = req;
+        const cart = await Cart.findOne({userId}).populate({
+            path: 'items',
+            populate: {
+                path: "productId",
+                model: "Product",
+            },
+        });
+
+        // cart가 없을 수도 있으니 예외 처리 추가
+        if (!cart) {
+            return res.status(200).json({ status: "success", data: [] });
+        }
+
+        return res.status(200).json({status:"success", data: cart.items});
+    } catch (error) {
+        return res.status(400).json({status:"fail", error: error.message});
+    }
 }
 
 module.exports = cartController;
