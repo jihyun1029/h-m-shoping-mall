@@ -52,7 +52,28 @@ export const getCartList = createAsyncThunk(
 
 export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
-  async (id, { rejectWithValue, dispatch }) => {}
+  async (id, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await api.delete(`/cart/${id}`);
+      if(response.status !== 200) throw new Error(response.error);
+      dispatch(
+          showToastMessage({
+            message: "카트에서 아이템이 삭제되었습니다.",
+            status: "success"
+          })
+      );
+      dispatch(getCartList()); // 카트 목록 새로고침
+      return response.data.cartItemQty; // 카트 아이템 수 반환
+    } catch(error) {
+        dispatch(
+            showToastMessage({
+                message: "카트 아이템 삭제 실패",
+                status: "error"
+            })
+        );
+        return rejectWithValue(error.message);
+    }
+  }
 );
 
 export const updateQty = createAsyncThunk(
@@ -104,6 +125,12 @@ const cartSlice = createSlice({
           .addCase(getCartList.rejected, (state, action) => {
               state.loading = false;
               state.error = action.payload;
+          })
+
+          .addCase(deleteCartItem.fulfilled, (state, action) => {
+              state.loading = false;
+              state.error = "";
+              state.cartItemCount = action.payload; // 카트 아이템 수 업데이트
           })
   },
 });

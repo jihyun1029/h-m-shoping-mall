@@ -64,4 +64,24 @@ cartController.getCart = async (req, res) => {
     }
 }
 
+cartController.deleteCartItem = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { id } = req.params;
+        
+        const cart = await Cart.findOne({userId});
+        if (!cart) {
+            throw new Error("Cart not found");
+        }
+        
+        // 해당 아이템을 카트에서 제거
+        cart.items = cart.items.filter(item => !item._id.equals(id));
+        await cart.save();
+        
+        res.status(200).json({status:"success", message: "Item deleted successfully", cartItemQty: cart.items.length});
+    } catch (error) {
+        return res.status(400).json({status:"fail", error: error.message});
+    }
+}
+
 module.exports = cartController;
