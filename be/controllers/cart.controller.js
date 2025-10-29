@@ -11,7 +11,7 @@ cartController.addItemToCart = async (req, res) => {
         // 유저를 가지고 카트 찾기 (userId로 cart 찾기)
         let cart = await Cart.findOne({userId}) // {userId:userId}
 
-        if(!cart) {
+        if (!cart) {
             // 유저가 만든 카트가 없다, 만들어주기
             cart = new Cart({userId, items: []}); // items 초기화
             await cart.save();
@@ -26,7 +26,7 @@ cartController.addItemToCart = async (req, res) => {
         const existItem = cart.items.find(
             (item) => item.productId.equals(productId) && item.size === size
         );
-        if(existItem) {
+        if (existItem) {
             // 그렇다면 에러 ('이미 아이템이 카트에 있습니다')
             throw new Error("아이템이 이미 카트에 담겨 있습니다!");
         }
@@ -35,16 +35,16 @@ cartController.addItemToCart = async (req, res) => {
         cart.items = [...cart.items, {productId, size, qty}];
         await cart.save();
 
-        res.status(200).json({status:"success", data: cart, cartItemQty: cart.items.length});
+        res.status(200).json({status: "success", data: cart, cartItemQty: cart.items.length});
 
     } catch (error) {
-        return res.status(400).json({status:"fail", error: error.message});
+        return res.status(400).json({status: "fail", error: error.message});
     }
 };
 
 cartController.getCart = async (req, res) => {
     try {
-        const { userId } = req;
+        const {userId} = req;
         const cart = await Cart.findOne({userId}).populate({
             path: 'items',
             populate: {
@@ -55,32 +55,64 @@ cartController.getCart = async (req, res) => {
 
         // cart가 없을 수도 있으니 예외 처리 추가
         if (!cart) {
-            return res.status(200).json({ status: "success", data: [] });
+            return res.status(200).json({status: "success", data: []});
         }
 
-        return res.status(200).json({status:"success", data: cart.items});
+        return res.status(200).json({status: "success", data: cart.items});
     } catch (error) {
-        return res.status(400).json({status:"fail", error: error.message});
+        return res.status(400).json({status: "fail", error: error.message});
     }
-}
+};
+
+cartController.editCartItem = async (req, res) => {
+    try {
+        const {userId} = req;
+        const {id} = req.params;
+        const {qty} = req.body;
+
+        const cart = await Cart.findOne({userId}).populate({
+            path: 'items',
+            populate: {
+                path: "productId",
+                model: "Product",
+            },
+        });
+        if (!cart) {
+            throw new Error("There is no cart for this user");
+        }
+
+        // 해당 아이템의 수량 업데이트
+        const item = cart.items.find(item => item._id.equals(id));
+        if (!item) {
+            throw new Error("Item not found");
+        }
+
+        item.qty = qty;
+        await cart.save();
+
+        res.status(200).json({status: "success", data: cart.items});
+    } catch (error) {
+        return res.status(400).json({status: "fail", error: error.message});
+    }
+};
 
 cartController.deleteCartItem = async (req, res) => {
     try {
-        const { userId } = req;
-        const { id } = req.params;
-        
+        const {userId} = req;
+        const {id} = req.params;
+
         const cart = await Cart.findOne({userId});
         if (!cart) {
             throw new Error("Cart not found");
         }
-        
+
         // 해당 아이템을 카트에서 제거
         cart.items = cart.items.filter(item => !item._id.equals(id));
         await cart.save();
-        
-        res.status(200).json({status:"success", message: "Item deleted successfully", cartItemQty: cart.items.length});
+
+        res.status(200).json({status: "success", message: "Item deleted successfully", cartItemQty: cart.items.length});
     } catch (error) {
-        return res.status(400).json({status:"fail", error: error.message});
+        return res.status(400).json({status: "fail", error: error.message});
     }
 }
 

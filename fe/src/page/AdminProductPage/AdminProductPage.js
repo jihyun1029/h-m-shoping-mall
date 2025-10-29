@@ -59,6 +59,7 @@ const AdminProductPage = () => {
   }, [searchQuery]);
 
   const deleteItem = (id) => {
+    //아이템 삭제하가ㅣ
     // 확인 다이얼로그 표시
     if (window.confirm("정말로 이 상품을 삭제하시겠습니까?")) {
       dispatch(deleteProduct(id));

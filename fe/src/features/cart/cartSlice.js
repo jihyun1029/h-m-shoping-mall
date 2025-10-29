@@ -16,23 +16,23 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ id, size }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await api.post("/cart", { productId: id, size, qty: 1});
-      if(response.status !== 200) throw new Error(response.data?.error);
+      const response = await api.post("/cart", { productId: id, size, qty: 1 });
+      if (response.status !== 200) throw new Error(response.data?.error);
       dispatch(
-          showToastMessage({
-            message: "카트에 아이템이 추가 됐습니다.",
-            status: "success"
-          })
+        showToastMessage({
+          message: "카트에 아이템이 추가 됐습니다.",
+          status: "success"
+        })
       );
       return response.data?.cartItemQty;
-    } catch(error) {
-        dispatch(
-            showToastMessage({
-                message: "카트에 아이템 추가 실패",
-                status: "error"
-            })
-        );
-        return rejectWithValue(error.message);
+    } catch (error) {
+      dispatch(
+        showToastMessage({
+          message: "카트에 아이템 추가 실패",
+          status: "error"
+        })
+      );
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -40,13 +40,13 @@ export const addToCart = createAsyncThunk(
 export const getCartList = createAsyncThunk(
   "cart/getCartList",
   async (_, { rejectWithValue, dispatch }) => {
-      try {
-          const response = await api.get("/cart");
-          if(response.status !== 200) throw new Error(response.error);
-          return response.data.data;
-      } catch (error) {
-          return rejectWithValue(error.error);
-      }
+    try {
+      const response = await api.get("/cart");
+      if (response.status !== 200) throw new Error(response.data?.error);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.error);
+    }
   }
 );
 
@@ -55,35 +55,49 @@ export const deleteCartItem = createAsyncThunk(
   async (id, { rejectWithValue, dispatch }) => {
     try {
       const response = await api.delete(`/cart/${id}`);
-      if(response.status !== 200) throw new Error(response.error);
+      if (response.status !== 200) throw new Error(response.error);
       dispatch(
-          showToastMessage({
-            message: "카트에서 아이템이 삭제되었습니다.",
-            status: "success"
-          })
+        showToastMessage({
+          message: "카트에서 아이템이 삭제되었습니다.",
+          status: "success"
+        })
       );
       dispatch(getCartList()); // 카트 목록 새로고침
       return response.data.cartItemQty; // 카트 아이템 수 반환
-    } catch(error) {
-        dispatch(
-            showToastMessage({
-                message: "카트 아이템 삭제 실패",
-                status: "error"
-            })
-        );
-        return rejectWithValue(error.message);
+    } catch (error) {
+      dispatch(
+        showToastMessage({
+          message: "카트 아이템 삭제 실패",
+          status: "error"
+        })
+      );
+      return rejectWithValue(error.message);
     }
   }
 );
 
 export const updateQty = createAsyncThunk(
   "cart/updateQty",
-  async ({ id, value }, { rejectWithValue }) => {}
+  async ({ id, value }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await api.put(`/cart/${id}`, { qty: parseInt(value) });
+      if (response.status !== 200) throw new Error(response.error);
+      return response.data.data;
+    } catch (error) {
+      dispatch(
+        showToastMessage({
+          message: "수량 변경 실패",
+          status: "error"
+        })
+      );
+      return rejectWithValue(error.message);
+    }
+  }
 );
 
 export const getCartQty = createAsyncThunk(
   "cart/getCartQty",
-  async (_, { rejectWithValue, dispatch }) => {}
+  async (_, { rejectWithValue, dispatch }) => { }
 );
 
 const cartSlice = createSlice({
@@ -96,42 +110,51 @@ const cartSlice = createSlice({
     // You can still add reducers here for non-async actions if necessary
   },
   extraReducers: (builder) => {
-      builder
-          .addCase(addToCart.pending, (state, action) => {
-              state.loading = true;
-          })
-          .addCase(addToCart.fulfilled, (state, action) => {
-              state.loading = false;
-              state.error = "";
-              state.cartItemCount = action.payload;
-          })
-          .addCase(addToCart.rejected, (state, action) => {
-              state.loading = false;
-              state.error = action.payload;
-          })
+    builder
+      .addCase(addToCart.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = "";
+        state.cartItemCount = action.payload;
+      })
+      .addCase(addToCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-          .addCase(getCartList.pending, (state, action) => {
-              state.loading = true;
-          })
-          .addCase(getCartList.fulfilled, (state, action) => {
-              state.loading = false;
-              state.error = "";
-              state.cartList = action.payload;
-              state.totalPrice = action.payload.reduce(
-                  (total, item) => total + item.productId.price * item.qty,
-                  0
-              );
-          })
-          .addCase(getCartList.rejected, (state, action) => {
-              state.loading = false;
-              state.error = action.payload;
-          })
+      .addCase(getCartList.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(getCartList.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = "";
+        state.cartList = action.payload;
+        state.totalPrice = action.payload.reduce(
+          (total, item) => total + item.productId.price * item.qty,
+          0
+        );
+      })
+      .addCase(getCartList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-          .addCase(deleteCartItem.fulfilled, (state, action) => {
-              state.loading = false;
-              state.error = "";
-              state.cartItemCount = action.payload; // 카트 아이템 수 업데이트
-          })
+       .addCase(updateQty.fulfilled, (state, action) => {
+         state.loading = false;
+         state.cartList = action.payload;
+         state.totalPrice = action.payload.reduce(
+           (total, item) => total + item.productId.price * item.qty,
+           0
+         );
+       })
+
+      .addCase(deleteCartItem.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = "";
+        state.cartItemCount = action.payload; // 카트 아이템 수 업데이트
+      })
   },
 });
 
