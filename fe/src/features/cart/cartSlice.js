@@ -97,7 +97,17 @@ export const updateQty = createAsyncThunk(
 
 export const getCartQty = createAsyncThunk(
   "cart/getCartQty",
-  async (_, { rejectWithValue, dispatch }) => { }
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await api.get("/cart/qty");
+      if (response.status !== 200) throw new Error(response.error);
+      return response.data.qty;
+    } catch (error) {
+      dispatch(showToastMessage({ message: error, status: "error" }));
+
+      return rejectWithValue(error);
+    }
+  }
 );
 
 const cartSlice = createSlice({
@@ -154,6 +164,11 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = "";
         state.cartItemCount = action.payload; // 카트 아이템 수 업데이트
+      })
+
+      // Navbar 초기 진입 또는 새로고침 시 장바구니 개수 동기화
+      .addCase(getCartQty.fulfilled, (state, action) => {
+        state.cartItemCount = action.payload || 0;
       })
   },
 });
