@@ -4,7 +4,7 @@ import {useNavigate} from "react-router";
 import {useLocation} from "react-router-dom";
 import {currencyFormat} from "../../../utils/number";
 
-const OrderReceipt = ({ cartList, totalPrice }) => {
+const OrderReceipt = ({cartList, totalPrice}) => {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -31,15 +31,15 @@ const OrderReceipt = ({ cartList, totalPrice }) => {
                     <strong>₩ {currencyFormat(totalPrice)}</strong>
                 </div>
             </div>
-            {/* {location.pathname.includes("/cart") && cartList.length > 0 && (
-        <Button
-          variant="dark"
-          className="payment-button"
-          onClick={() => navigate("/payment")}
-        >
-          결제 계속하기
-        </Button>
-      )} */}
+            {location.pathname.includes("/cart") && cartList.length > 0 && (
+                <Button
+                    variant="dark"
+                    className="payment-button"
+                    onClick={() => navigate("/payment")}
+                >
+                    결제 계속하기
+                </Button>
+            )}
 
             <div>
                 가능한 결제 수단 귀하가 결제 단계에 도달할 때까지 가격 및 배송료는

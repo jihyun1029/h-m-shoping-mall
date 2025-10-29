@@ -10,7 +10,7 @@ const OrderSchema = Schema(
         shipTo: { type: Object, required: true},
         contact: { type: Object, required: true},
         orderNum: { type: String},
-        item: [
+        items: [
             {
                 productId: { type: mongoose.ObjectId, ref: Product, required: true},
                 price: { type: Number, required: true},
