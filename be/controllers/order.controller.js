@@ -14,7 +14,7 @@ orderController.createOrder = async (req, res) => {
         // 재고가 충분하지 않는 아이템이 있었다 => 에러
         if(insufficientStockItems.length > 0) {
             const errorMessage = insufficientStockItems.reduce(
-                (total, item) => total += item.message,
+                (total, item) => (total += item.message),
                 ""
             );
             throw new Error(errorMessage);
@@ -33,7 +33,7 @@ orderController.createOrder = async (req, res) => {
         await newOrder.save();
         res.status(200).json({ status: "success", orderNum: newOrder.orderNum });
     } catch (error) {
-        return res.tatus(400).json({ status: "fail", error: error.message });
+        return res.status(400).json({ status: "fail", error: error.message });
     }
 }
 
