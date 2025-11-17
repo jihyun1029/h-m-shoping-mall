@@ -49,7 +49,7 @@ const Login = () => {
               type="email"
               placeholder="Enter email"
               required
-              onChange={(eventF) => setEmail(event.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </Form.Group>
 
@@ -79,6 +79,7 @@ const Login = () => {
                 2. Oauth로그인을 위해서 google api 사이트에 가입하고 클라이언트키, 시크릿키 받아오기
                 3. 로그인
                 4. 백엔드에서 로그인하기
+                   토큰값을 읽어와서 => 유저정보를 뽑아내고 email
                    a. 이미 로그인을 한적이 있는 유저 => 로그인시키고 토큰값 주면 장땡
                    b. 처음 로그인 시도를 한 유저다 => 유저정보 먼저 새로 생성 => 토큰값
               */}
